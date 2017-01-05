@@ -119,6 +119,7 @@ class DoneFrame extends Component {
         return (
             <div className="well text-center">
                 <h2>{this.props.doneStatus}</h2>
+                <button className="btn btn-default" onClick={this.props.resetGame}>Play again</button>
             </div>
         );
     }
@@ -127,7 +128,11 @@ class DoneFrame extends Component {
 class Game extends Component {
     constructor(props) {
         super(props);
-        this.state = {
+        this.state = this.getInitialState();
+    }
+
+    getInitialState = () => {
+        return {
             selectedNumbers: []
             , usedNumbers: []
             , numberOfStars: this.randomNumber()
@@ -135,7 +140,11 @@ class Game extends Component {
             , redraws: 5
             , doneStatus: null
         };
-    }
+    };
+
+    resetGame = () => {
+        this.setState(this.getInitialState());
+    };
 
     selectNumber = (clickedNumber) => {
         if (this.state.selectedNumbers.indexOf(clickedNumber) < 0) {
@@ -218,7 +227,7 @@ class Game extends Component {
 
         let bottomFrame;
         if (this.state.doneStatus) {
-            bottomFrame = <DoneFrame doneStatus={this.state.doneStatus}/>;
+            bottomFrame = <DoneFrame doneStatus={this.state.doneStatus} resetGame={this.resetGame}/>;
         }
         else {
             bottomFrame = <NumbersFrame selectedNumbers={selectedNumbers}
