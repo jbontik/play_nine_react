@@ -3,13 +3,16 @@ import "./App.css";
 
 class StarsFrame extends Component {
     render() {
+        const numberOfStars = Math.floor(Math.random() * 9) + 1;
+        const stars = [];
+        for (let i = 1; i <= numberOfStars; i++) {
+            stars.push(<span className="glyphicon glyphicon-star"/>);
+        }
+
         return (
             <div id="stars-frame">
                 <div className="well">
-                    <span className="glyphicon glyphicon-star"/>
-                    <span className="glyphicon glyphicon-star"/>
-                    <span className="glyphicon glyphicon-star"/>
-                    <span className="glyphicon glyphicon-star"/>
+                    {stars}
                 </div>
             </div>
         );
