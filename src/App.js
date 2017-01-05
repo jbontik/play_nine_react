@@ -20,10 +20,26 @@ class StarsFrame extends Component {
 
 class ButtonFrame extends Component {
     render() {
-        const disabled = this.props.selectedNumbers.length === 0;
+        let button;
+        switch (this.props.correct) {
+            case true:
+                button = (
+                    <button className="btn btn-success btn-lg"><span className="glyphicon glyphicon-ok"/></button>);
+                break;
+            case false:
+                button = (
+                    <button className="btn btn-danger btn-lg"><span className="glyphicon glyphicon-remove"/></button>);
+                break;
+            default:
+                const disabled = this.props.selectedNumbers.length === 0;
+                button = (
+                    <button className="btn btn-primary btn-lg" disabled={disabled} onClick={this.props.checkAnswer}>
+                        =</button>);
+        }
+
         return (
             <div id="button-frame">
-                <button className="btn btn-primary btn-lg" disabled={disabled}>=</button>
+                {button}
             </div>
         );
     }
@@ -64,12 +80,17 @@ class NumbersFrame extends Component {
 class Game extends Component {
     constructor(props) {
         super(props);
-        this.state = {selectedNumbers: [], numberOfStars: Math.floor(Math.random() * 9) + 1};
+        this.state = {
+            selectedNumbers: []
+            , numberOfStars: Math.floor(Math.random() * 9) + 1
+            , correct: null
+        };
     }
 
     selectNumber = (clickedNumber) => {
         if (this.state.selectedNumbers.indexOf(clickedNumber) < 0) {
-            this.setState({selectedNumbers: this.state.selectedNumbers.concat(clickedNumber)});
+            this.setState({selectedNumbers: this.state.selectedNumbers.concat(clickedNumber)
+            , correct: null});
         }
     };
 
@@ -77,7 +98,17 @@ class Game extends Component {
         const selectedNumbers = this.state.selectedNumbers;
         const indexOfClickedNumber = selectedNumbers.indexOf(clickedNumber);
         selectedNumbers.splice(indexOfClickedNumber, 1);
-        this.setState({selectedNumbers: selectedNumbers});
+        this.setState({selectedNumbers: selectedNumbers
+        , correct: null});
+    };
+
+    sumOfSelectedNumbers = () => {
+        return this.state.selectedNumbers.reduce((a, b) => a + b, 0);
+    };
+
+    checkAnswer = () => {
+        const correct = (this.sumOfSelectedNumbers() === this.state.numberOfStars);
+        this.setState({correct: correct});
     };
 
     render() {
@@ -89,10 +120,13 @@ class Game extends Component {
                 <hr/>
                 <div className="clearfix">
                     <StarsFrame numberOfStars={this.state.numberOfStars}/>
-                    <ButtonFrame selectedNumbers={selectedNumbers}/>
-                    <AnswerFrame selectedNumbers={selectedNumbers} unselectNumber={this.unselectNumber}/>
+                    <ButtonFrame selectedNumbers={selectedNumbers} correct={this.state.correct}
+                                 checkAnswer={this.checkAnswer}/>
+                    <AnswerFrame selectedNumbers={selectedNumbers}
+                                 unselectNumber={this.unselectNumber}/>
                 </div>
-                <NumbersFrame selectedNumbers={selectedNumbers} selectNumber={this.selectNumber}/>
+                <NumbersFrame selectedNumbers={selectedNumbers}
+                              selectNumber={this.selectNumber}/>
             </div>
         );
     }
