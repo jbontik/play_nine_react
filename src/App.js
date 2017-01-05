@@ -40,6 +40,24 @@ class AnswerFrame extends Component {
     }
 }
 
+class NumbersFrame extends Component {
+    render() {
+
+        const numbers = [];
+        for (let i = 1 ; i <= 9; i++) {
+            numbers.push(<div className="number">{i}</div>);
+        }
+
+        return (
+            <div id="numbers-frame">
+                <div className="well">
+                    {numbers}
+                </div>
+            </div>
+        );
+    }
+}
+
 class Game extends Component {
     render() {
         return (
@@ -51,6 +69,7 @@ class Game extends Component {
                     <ButtonFrame/>
                     <AnswerFrame/>
                 </div>
+                <NumbersFrame/>
             </div>
         );
     }
