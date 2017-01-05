@@ -20,9 +20,10 @@ class StarsFrame extends Component {
 
 class ButtonFrame extends Component {
     render() {
+        const disabled = this.props.selectedNumbers.length === 0;
         return (
             <div id="button-frame">
-                <button className="btn btn-primary btn-lg">=</button>
+                <button className="btn btn-primary btn-lg" disabled={disabled}>=</button>
             </div>
         );
     }
@@ -31,7 +32,8 @@ class ButtonFrame extends Component {
 
 class AnswerFrame extends Component {
     render() {
-        const selectedNumbers = this.props.selectedNumbers.map(i => (<span onClick={() => this.props.unselectNumber(i)}>{i}</span>));
+        const selectedNumbers = this.props.selectedNumbers.map(i => (
+            <span onClick={() => this.props.unselectNumber(i)}>{i}</span>));
 
         return (
             <div id="answer-frame">
@@ -79,16 +81,18 @@ class Game extends Component {
     };
 
     render() {
+        const selectedNumbers = this.state.selectedNumbers;
+
         return (
             <div id="game">
                 <h2>Play Nine</h2>
                 <hr/>
                 <div className="clearfix">
                     <StarsFrame numberOfStars={this.state.numberOfStars}/>
-                    <ButtonFrame/>
-                    <AnswerFrame selectedNumbers={this.state.selectedNumbers} unselectNumber={this.unselectNumber}/>
+                    <ButtonFrame selectedNumbers={selectedNumbers}/>
+                    <AnswerFrame selectedNumbers={selectedNumbers} unselectNumber={this.unselectNumber}/>
                 </div>
-                <NumbersFrame selectedNumbers={this.state.selectedNumbers} selectNumber={this.selectNumber}/>
+                <NumbersFrame selectedNumbers={selectedNumbers} selectNumber={this.selectNumber}/>
             </div>
         );
     }
