@@ -1,10 +1,36 @@
 import React, {Component} from "react";
 import "./App.css";
 
+const possibleCombinationSum = function (arr, n) {
+    if (arr.indexOf(n) >= 0) {
+        return true;
+    }
+    if (arr[0] > n) {
+        return false;
+    }
+    if (arr[arr.length - 1] > n) {
+        arr.pop();
+        return possibleCombinationSum(arr, n);
+    }
+    const listSize = arr.length, combinationsCount = (1 << listSize);
+    for (let i = 1; i < combinationsCount; i++) {
+        let combinationSum = 0;
+        for (let j = 0; j < listSize; j++) {
+            if (i & (1 << j)) {
+                combinationSum += arr[j];
+            }
+        }
+        if (n === combinationSum) {
+            return true;
+        }
+    }
+    return false;
+};
+
 class StarsFrame extends Component {
     render() {
         const stars = [];
-        for (let i = 1; i <= this.props.randomNumber; i++) {
+        for (let i = 1; i <= this.props.numberOfStars; i++) {
             stars.push(<span className="glyphicon glyphicon-star"/>);
         }
 
@@ -88,6 +114,16 @@ class NumbersFrame extends Component {
     }
 }
 
+class DoneFrame extends Component {
+    render() {
+        return (
+            <div className="well text-center">
+                <h2>{this.props.doneStatus}</h2>
+            </div>
+        );
+    }
+}
+
 class Game extends Component {
     constructor(props) {
         super(props);
@@ -97,6 +133,7 @@ class Game extends Component {
             , numberOfStars: this.randomNumber()
             , correct: null
             , redraws: 5
+            , doneStatus: null
         };
     }
 
@@ -139,7 +176,7 @@ class Game extends Component {
             , selectedNumbers: []
             , correct: null
             , numberOfStars: this.randomNumber()
-        });
+        }, this.updateDoneStatus);
     };
 
     redraw = () => {
@@ -152,12 +189,42 @@ class Game extends Component {
                     , correct: null
                     , redraws: redraws - 1
                 }
-            );
+            , this.updateDoneStatus);
         }
+    };
+
+    possibleCombinations = () => {
+      const possibleNumbers = [];
+      for (let i = 1; i <= 9; i++) {
+          if (this.state.usedNumbers.indexOf(i) < 0) {
+              possibleNumbers.push(i);
+          }
+      }
+      return possibleCombinationSum(possibleNumbers, this.state.numberOfStars);
+    };
+
+    updateDoneStatus = () => {
+      if (this.state.usedNumbers.length === 9) {
+          this.setState({doneStatus: "Nice!"});
+          return;
+      }
+      if (this.state.redraws === 0 && !this.possibleCombinations()) {
+          this.setState({doneStatus: "Dommage."});
+      }
     };
 
     render() {
         const selectedNumbers = this.state.selectedNumbers;
+
+        let bottomFrame;
+        if (this.state.doneStatus) {
+            bottomFrame = <DoneFrame doneStatus={this.state.doneStatus}/>;
+        }
+        else {
+            bottomFrame = <NumbersFrame selectedNumbers={selectedNumbers}
+                                        usedNumbers={this.state.usedNumbers}
+                                        selectNumber={this.selectNumber}/>;
+        }
 
         return (
             <div id="game">
@@ -173,9 +240,7 @@ class Game extends Component {
                     <AnswerFrame selectedNumbers={selectedNumbers}
                                  unselectNumber={this.unselectNumber}/>
                 </div>
-                <NumbersFrame selectedNumbers={selectedNumbers}
-                              usedNumbers={this.state.usedNumbers}
-                              selectNumber={this.selectNumber}/>
+                {bottomFrame}
             </div>
         );
     }
