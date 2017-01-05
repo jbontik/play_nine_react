@@ -4,7 +4,7 @@ import "./App.css";
 class StarsFrame extends Component {
     render() {
         const stars = [];
-        for (let i = 1; i <= this.props.numberOfStars; i++) {
+        for (let i = 1; i <= this.props.randomNumber; i++) {
             stars.push(<span className="glyphicon glyphicon-star"/>);
         }
 
@@ -24,7 +24,8 @@ class ButtonFrame extends Component {
         switch (this.props.correct) {
             case true:
                 button = (
-                    <button className="btn btn-success btn-lg"><span className="glyphicon glyphicon-ok"/></button>);
+                    <button className="btn btn-success btn-lg" onClick={this.props.acceptAnswer}><span
+                        className="glyphicon glyphicon-ok"/></button>);
                 break;
             case false:
                 button = (
@@ -40,6 +41,15 @@ class ButtonFrame extends Component {
         return (
             <div id="button-frame">
                 {button}
+                <br/>
+                <br/>
+                <button className="btn btn-warning btn-xs"
+                        onClick={this.props.redraw}
+                        disabled={this.props.redraws === 0}>
+                    <span className="glyphicon glyphicon-refresh"></span>
+                    &nbsp;
+                    {this.props.redraws}
+                </button>
             </div>
         );
     }
@@ -63,7 +73,8 @@ class NumbersFrame extends Component {
     render() {
         const numbers = [];
         for (let i = 1; i <= 9; i++) {
-            let className = "numbers selected-" + (this.props.selectedNumbers.indexOf(i) >= 0);
+            let className = "numbers selected-" + (this.props.selectedNumbers.indexOf(i) >= 0)
+                + " used-" + (this.props.usedNumbers.indexOf(i) >= 0)
             numbers.push(<div className={className} onClick={() => this.props.selectNumber(i)}>{i}</div>);
         }
 
@@ -82,15 +93,19 @@ class Game extends Component {
         super(props);
         this.state = {
             selectedNumbers: []
-            , numberOfStars: Math.floor(Math.random() * 9) + 1
+            , usedNumbers: []
+            , numberOfStars: this.randomNumber()
             , correct: null
+            , redraws: 5
         };
     }
 
     selectNumber = (clickedNumber) => {
         if (this.state.selectedNumbers.indexOf(clickedNumber) < 0) {
-            this.setState({selectedNumbers: this.state.selectedNumbers.concat(clickedNumber)
-            , correct: null});
+            this.setState({
+                selectedNumbers: this.state.selectedNumbers.concat(clickedNumber)
+                , correct: null
+            });
         }
     };
 
@@ -98,8 +113,10 @@ class Game extends Component {
         const selectedNumbers = this.state.selectedNumbers;
         const indexOfClickedNumber = selectedNumbers.indexOf(clickedNumber);
         selectedNumbers.splice(indexOfClickedNumber, 1);
-        this.setState({selectedNumbers: selectedNumbers
-        , correct: null});
+        this.setState({
+            selectedNumbers: selectedNumbers
+            , correct: null
+        });
     };
 
     sumOfSelectedNumbers = () => {
@@ -109,6 +126,34 @@ class Game extends Component {
     checkAnswer = () => {
         const correct = (this.sumOfSelectedNumbers() === this.state.numberOfStars);
         this.setState({correct: correct});
+    };
+
+    randomNumber = () => {
+        return Math.floor(Math.random() * 9) + 1;
+    };
+
+    acceptAnswer = () => {
+        const usedNumbers = this.state.usedNumbers.concat(this.state.selectedNumbers);
+        this.setState({
+            usedNumbers: usedNumbers
+            , selectedNumbers: []
+            , correct: null
+            , numberOfStars: this.randomNumber()
+        });
+    };
+
+    redraw = () => {
+        const redraws = this.state.redraws;
+        if (redraws > 0) {
+            this.setState(
+                {
+                    numberOfStars: this.randomNumber()
+                    , selectedNumbers: []
+                    , correct: null
+                    , redraws: redraws - 1
+                }
+            );
+        }
     };
 
     render() {
@@ -121,11 +166,15 @@ class Game extends Component {
                 <div className="clearfix">
                     <StarsFrame numberOfStars={this.state.numberOfStars}/>
                     <ButtonFrame selectedNumbers={selectedNumbers} correct={this.state.correct}
-                                 checkAnswer={this.checkAnswer}/>
+                                 checkAnswer={this.checkAnswer}
+                                 acceptAnswer={this.acceptAnswer}
+                                 redraws={this.state.redraws}
+                                 redraw={this.redraw}/>
                     <AnswerFrame selectedNumbers={selectedNumbers}
                                  unselectNumber={this.unselectNumber}/>
                 </div>
                 <NumbersFrame selectedNumbers={selectedNumbers}
+                              usedNumbers={this.state.usedNumbers}
                               selectNumber={this.selectNumber}/>
             </div>
         );
