@@ -31,7 +31,7 @@ class ButtonFrame extends Component {
 
 class AnswerFrame extends Component {
     render() {
-        const selectedNumbers = this.props.selectedNumbers.map(i => (<span onClick={() => this.props.clickNumber(i)}>{i}</span>));
+        const selectedNumbers = this.props.selectedNumbers.map(i => (<span onClick={() => this.props.unselectNumber(i)}>{i}</span>));
 
         return (
             <div id="answer-frame">
@@ -46,7 +46,7 @@ class NumbersFrame extends Component {
         const numbers = [];
         for (let i = 1; i <= 9; i++) {
             let className = "numbers selected-" + (this.props.selectedNumbers.indexOf(i) >= 0);
-            numbers.push(<div className={className} onClick={() => this.props.clickNumber(i)}>{i}</div>);
+            numbers.push(<div className={className} onClick={() => this.props.selectNumber(i)}>{i}</div>);
         }
 
         return (
@@ -65,13 +65,13 @@ class Game extends Component {
         this.state = {selectedNumbers: [], numberOfStars: Math.floor(Math.random() * 9) + 1};
     }
 
-    addNumber = (clickedNumber) => {
+    selectNumber = (clickedNumber) => {
         if (this.state.selectedNumbers.indexOf(clickedNumber) < 0) {
             this.setState({selectedNumbers: this.state.selectedNumbers.concat(clickedNumber)});
         }
     };
 
-    rollbackNumber = (clickedNumber) => {
+    unselectNumber = (clickedNumber) => {
         const selectedNumbers = this.state.selectedNumbers;
         const indexOfClickedNumber = selectedNumbers.indexOf(clickedNumber);
         selectedNumbers.splice(indexOfClickedNumber, 1);
@@ -86,9 +86,9 @@ class Game extends Component {
                 <div className="clearfix">
                     <StarsFrame numberOfStars={this.state.numberOfStars}/>
                     <ButtonFrame/>
-                    <AnswerFrame selectedNumbers={this.state.selectedNumbers} clickNumber={this.rollbackNumber}/>
+                    <AnswerFrame selectedNumbers={this.state.selectedNumbers} unselectNumber={this.unselectNumber}/>
                 </div>
-                <NumbersFrame selectedNumbers={this.state.selectedNumbers} clickNumber={this.addNumber}/>
+                <NumbersFrame selectedNumbers={this.state.selectedNumbers} selectNumber={this.selectNumber}/>
             </div>
         );
     }
