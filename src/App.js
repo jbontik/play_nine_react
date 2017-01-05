@@ -31,7 +31,7 @@ class ButtonFrame extends Component {
 
 class AnswerFrame extends Component {
     render() {
-        const selectedNumbers = this.props.selectedNumbers.map(i => (<span>{i}</span>));
+        const selectedNumbers = this.props.selectedNumbers.map(i => (<span onClick={() => this.props.clickNumber(i)}>{i}</span>));
 
         return (
             <div id="answer-frame">
@@ -65,10 +65,17 @@ class Game extends Component {
         this.state = {selectedNumbers: [], numberOfStars: Math.floor(Math.random() * 9) + 1};
     }
 
-    clickNumber = (clickedNumber) => {
+    addNumber = (clickedNumber) => {
         if (this.state.selectedNumbers.indexOf(clickedNumber) < 0) {
             this.setState({selectedNumbers: this.state.selectedNumbers.concat(clickedNumber)});
         }
+    };
+
+    rollbackNumber = (clickedNumber) => {
+        const selectedNumbers = this.state.selectedNumbers;
+        const indexOfClickedNumber = selectedNumbers.indexOf(clickedNumber);
+        selectedNumbers.splice(indexOfClickedNumber, 1);
+        this.setState({selectedNumbers: selectedNumbers});
     };
 
     render() {
@@ -79,9 +86,9 @@ class Game extends Component {
                 <div className="clearfix">
                     <StarsFrame numberOfStars={this.state.numberOfStars}/>
                     <ButtonFrame/>
-                    <AnswerFrame selectedNumbers={this.state.selectedNumbers}/>
+                    <AnswerFrame selectedNumbers={this.state.selectedNumbers} clickNumber={this.rollbackNumber}/>
                 </div>
-                <NumbersFrame selectedNumbers={this.state.selectedNumbers} clickNumber={this.clickNumber}/>
+                <NumbersFrame selectedNumbers={this.state.selectedNumbers} clickNumber={this.addNumber}/>
             </div>
         );
     }
